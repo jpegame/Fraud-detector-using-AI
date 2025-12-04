@@ -6,7 +6,7 @@ services:
     container_name: mysql-container
     restart: always
     env_file:
-      - ../.env
+      - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -18,10 +18,17 @@ services:
   python-app:
     build:
       context: ..
-      dockerfile: docker/python-app.Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: python-app
     env_file:
-      - ../.env
+      - .env
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_CSV_FILE: ${MYSQL_CSV_FILE}
+      DB_RETRY_COUNT: ${DB_RETRY_COUNT}
+      DB_RETRY_DELAY: ${DB_RETRY_DELAY}
     volumes:
       - ../scripts:/app/scripts
       - ../data:/app/data

@@ -7,56 +7,58 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MYSQL_HOST = os.getenv("MYSQL_HOST")
-MYSQL_USER = os.getenv("MYSQL_USER")
 MYSQL_PASSWORD = os.getenv("MYSQL_ROOT_PASSWORD")
 MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
 
-CSV_FILE = os.getenv("CSV_FILE")
+CSV_PATH = os.getenv("MYSQL_CSV_FILE")
 RETRY_COUNT = int(os.getenv("DB_RETRY_COUNT", 10))
 RETRY_DELAY = int(os.getenv("DB_RETRY_DELAY", 3))
 
 print("Starting importer using environment config...")
 
-for attempt in range(RETRY_COUNT):
+for i in range(RETRY_COUNT):
+    print(f"Variables: Host={MYSQL_HOST}, Password={MYSQL_PASSWORD} Database={MYSQL_DATABASE}")
     try:
         conn = mysql.connector.connect(
             host=MYSQL_HOST,
-            user=MYSQL_USER,
             password=MYSQL_PASSWORD,
             database=MYSQL_DATABASE
         )
-        print("Connected to database.")
         break
-    except Exception:
-        print(f"DB not ready, retrying ({attempt+1}/{RETRY_COUNT})...")
+    except:
         time.sleep(RETRY_DELAY)
 else:
-    raise Exception("Could not connect to MySQL after multiple retries.")
+    raise Exception("Database connection failed.")
 
+with open(CSV_PATH, "r") as f:
+    reader = csv.DictReader(f)
+    columns = reader.fieldnames
+    
 cursor = conn.cursor()
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS employees (
+table_name = "credit-card"
+column_definitions = ", ".join([f"`{col}` FLOAT" for col in columns])
+sql_create = f"""
+CREATE TABLE IF NOT EXISTS `{table_name}` (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    age INT,
-    department VARCHAR(100)
+    {column_definitions}
 );
-""")
+"""
 
-if not os.path.exists(CSV_FILE):
-    raise FileNotFoundError(f"CSV file not found: {CSV_FILE}")
+cursor.execute(sql_create)
 
-with open(CSV_FILE) as f:
+insert_query = f"""
+INSERT INTO `{table_name}` ({", ".join([f"`{col}`" for col in columns])})
+VALUES ({", ".join(['%s'] * len(columns))})
+"""
+
+with open(CSV_PATH, "r") as f:
     reader = csv.DictReader(f)
     for row in reader:
-        cursor.execute(
-            "INSERT INTO employees (name, age, department) VALUES (%s, %s, %s)",
-            (row["name"], row["age"], row["department"])
-        )
+        cursor.execute(insert_query, list(row.values()))
 
 conn.commit()
 cursor.close()
 conn.close()
 
-print("CSV import completed successfully!")
+print("✅ Import completed successfully!")
