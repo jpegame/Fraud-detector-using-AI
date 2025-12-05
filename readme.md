@@ -27,6 +27,11 @@ cp example.env .env
 
 Edite o `.env` conforme necessário (usuários, senhas, portas, etc.)
 
+> [!NOTE]
+> Para inserir mais váriaveis de ambiente, adicionar no docker-compose.yml
+> <br>
+> OBS: Apenas o .env da pasta docker surte alterações no código
+
 ---
 
 ### 3. Inicie os containers
@@ -42,6 +47,9 @@ Após a primeira execução, você pode usar apenas:
 ```sh
 docker compose up
 ```
+
+> [!NOTE]
+> Para inserir mais serviços, execute semelhante ao servio do python-app ou altere no DockerFile para adicionar novo comando
 
 ---
 
