@@ -5,10 +5,10 @@ URI = "mongodb+srv://Aluno:aluno123@clusterlineu.b5nhvya.mongodb.net/?retryWrite
 
 client = MongoClient(URI, tls=True, tlsAllowInvalidCertificates=True)
 
-db = client["meuBdTeste"]          # cria/usa o banco
-collection = db["transacoes"]      # cria/usa a coleção
+db = client["meuBdTeste"]
+collection = db["transacoes"]
 
-with open("data/credit-card2.json", "r") as f:
+with open("../data/credit-card2.json", "r") as f:
     docs = json.load(f)
 
 result = collection.insert_many(docs)
