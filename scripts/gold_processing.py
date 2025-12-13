@@ -1,13 +1,33 @@
-from db import get_sqlite_engine
+import sqlite3
 
 def run_gold(silver_df):
-    engine = get_sqlite_engine()
+    conn = sqlite3.connect("data/gold.db")
+    cursor = conn.cursor()
 
-    silver_df.to_sql(
-        "credit_card_gold",
-        engine,
-        if_exists="replace",
-        index=False
+    cursor.execute("DROP TABLE IF EXISTS credit_card_gold")
+
+    columns = silver_df.columns
+    col_defs = ", ".join([f"{col} TEXT" for col in columns])
+
+    create_table_sql = f"""
+    CREATE TABLE credit_card_gold (
+        {col_defs}
+    )
+    """
+    cursor.execute(create_table_sql)
+
+    placeholders = ", ".join(["?"] * len(columns))
+    insert_sql = f"""
+    INSERT INTO credit_card_gold
+    VALUES ({placeholders})
+    """
+
+    cursor.executemany(
+        insert_sql,
+        silver_df.astype(str).values.tolist()
     )
 
-    print("[GOLD] Dados persistidos em SQLite")
+    conn.commit()
+    conn.close()
+
+    print("[GOLD] Dados persistidos em SQLite com sucesso")

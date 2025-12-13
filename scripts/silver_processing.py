@@ -6,7 +6,7 @@ def run_silver():
     engine = get_mysql_engine()
 
     with engine.connect() as conn:
-        result = conn.execute(text("SELECT * FROM credit_card_transactions"))
+        result = conn.execute(text("SELECT * FROM credit_card"))
         rows = result.fetchall()
         columns = result.keys()
 
