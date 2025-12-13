@@ -101,3 +101,6 @@ A ingestão dos dados foi realizada por meio de um script Python executado em co
 
 O MongoDB foi utilizado por meio do serviço gerenciado MongoDB Atlas, permitindo o acesso a um banco NoSQL hospedado em nuvem para armazenamento dos dados semi-estruturados.
 
+![alt text](images/mongodb.png)
+
+> OBS: A última linha `connections: []` envidencia que a conexão com o MongoDB ocorreu com sucesso.
