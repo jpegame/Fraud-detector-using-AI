@@ -1,12 +1,13 @@
-from sqlalchemy import create_engine
+from db import get_sqlite_engine
 
-sqlite_engine = create_engine("sqlite:///data/gold.db")
+def run_gold(silver_df):
+    engine = get_sqlite_engine()
 
-agg_df.to_sql(
-    "credit_card_gold",
-    sqlite_engine,
-    if_exists="replace",
-    index=False
-)
+    silver_df.to_sql(
+        "credit_card_gold",
+        engine,
+        if_exists="replace",
+        index=False
+    )
 
-print("Gold Layer salva em SQLite")
+    print("[GOLD] Dados persistidos em SQLite")
