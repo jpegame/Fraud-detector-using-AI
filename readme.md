@@ -97,3 +97,7 @@ O banco de dados relacional foi inicializado automaticamente pelo container MySQ
 
 A ingestão dos dados foi realizada por meio de um script Python executado em container Docker, responsável por ler os arquivos CSV e persistir os dados no banco MySQL.
 
+## Criação do cluster no mongodb
+
+O MongoDB foi utilizado por meio do serviço gerenciado MongoDB Atlas, permitindo o acesso a um banco NoSQL hospedado em nuvem para armazenamento dos dados semi-estruturados.
+
