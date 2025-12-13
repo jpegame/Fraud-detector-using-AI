@@ -9,7 +9,7 @@ numpy==1.26.4
 # DATABASES
 # =========================
 mysql-connector-python==9.5.0
-SQLAlchemy==2.0.30
+SQLAlchemy==1.4.52
 pymongo==4.10.1
 dnspython==2.6.1
 
@@ -21,15 +21,10 @@ imbalanced-learn==0.12.3
 joblib==1.4.2
 
 # =========================
-# VISUALIZATION (opcional, mas útil)
+# VISUALIZATION (opcional)
 # =========================
 matplotlib==3.9.2
 seaborn==0.13.2
-
-# =========================
-# AIRFLOW
-# =========================
-apache-airflow==2.10.3
 
 # =========================
 # UTILS
