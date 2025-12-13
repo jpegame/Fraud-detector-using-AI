@@ -73,3 +73,11 @@ Caso precise parar os containers, execute:
 ```sh
 docker compose down
 ```
+
+---
+
+Criação da VM Ubuntu, e a mesma rodando para o ambiente de desenvolvimento
+
+![alt text](images/vm.png)
+
+O ambiente de desenvolvimento foi configurado utilizando a máquina virtual Ubuntu Server 25 disponibilizada pelo docente. A VM encontra-se funcional, com Docker, Python 3, ambiente virtual (.venv) e Apache Airflow corretamente instalados e testados.
