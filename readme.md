@@ -76,13 +76,24 @@ docker compose down
 
 ---
 
-Criação da VM Ubuntu, e a mesma rodando para o ambiente de desenvolvimento
+## Criação da VM Ubuntu, e a mesma rodando para o ambiente de desenvolvimento
 
 ![alt text](images/vm.png)
 
 O ambiente de desenvolvimento foi configurado utilizando a máquina virtual Ubuntu Server 25 disponibilizada pelo docente. A VM encontra-se funcional, com Docker, Python 3, ambiente virtual (.venv) e Apache Airflow corretamente instalados e testados.
 
 
-Rodando o MYSQL no container Docker dentro da VM
+## Rodando o MYSQL no container Docker dentro da VM
+
+![alt text](images/container.png)
 
 O banco de dados relacional foi inicializado automaticamente pelo container MySQL utilizando variáveis de ambiente, enquanto a criação das tabelas e a inserção dos dados foram realizadas via script Python durante a etapa de ingestão.
+
+> OBS: 2 containers foram incializados, um para o mysql e o outro para rodar o script de ingestão python
+
+## Inserindo dados na tabela do mysql 
+
+![alt text](images/tabela_mysql.png)
+
+A ingestão dos dados foi realizada por meio de um script Python executado em container Docker, responsável por ler os arquivos CSV e persistir os dados no banco MySQL.
+
