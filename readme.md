@@ -104,3 +104,23 @@ O MongoDB foi utilizado por meio do serviço gerenciado MongoDB Atlas, permitind
 ![alt text](images/mongodb.png)
 
 > OBS: A última linha `connections: []` envidencia que a conexão com o MongoDB ocorreu com sucesso.
+
+## Inserção do JSON no mongo
+
+![alt text](image.png)
+
+Nessa etapa, utilizamos uma build temporária do container para scripts python para rodar o script `import_csv_mongo.py`, foi responsável por obter os dados da segunda partição do .csv, traduzir para JSON e inserir no Banco de Dados MongoDB. A última linha prova essa inserção.
+
+## Camadas do medalhão
+
+### Camada bronze
+
+Já pode ser considerado o .csv bruto, visto que tem a mesma estrutura de um .txt
+
+### Camada silver
+
+Na camada Silver, os dados foram carregados a partir do MySQL e processados utilizando pandas DataFrames, incluindo limpeza, seleção de atributos relevantes e agregações.
+
+### Camada Gold
+
+Os dados consolidados da camada Silver foram persistidos na camada Gold em um banco de dados relacional SQLite, possibilitando consultas analíticas e suporte à modelagem.
