@@ -1,10 +1,7 @@
 import pandas as pd
 import os
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 
-# =========================
-# MYSQL CONFIG
-# =========================
 MYSQL_HOST = os.getenv("MYSQL_HOST", "mysql")
 MYSQL_DB = os.getenv("MYSQL_DATABASE")
 MYSQL_USER = "root"
@@ -14,24 +11,20 @@ engine = create_engine(
     f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DB}"
 )
 
-# =========================
 # BRONZE → SILVER
-# =========================
 with engine.connect() as conn:
-    query = text("SELECT * FROM credit_card_transactions")
-    df = pd.read_sql_query(query, conn)
+    df = pd.read_sql_query(
+        "SELECT * FROM credit_card_transactions",
+        conn
+    )
 
-# Transformações Silver
 df = df.drop_duplicates()
 df = df.dropna()
 
 silver_df = df.copy()
-
 print(f"Silver DataFrame criado com {len(silver_df)} registros")
 
-# =========================
-# SILVER → GOLD (SQLITE)
-# =========================
+# SILVER → GOLD
 sqlite_engine = create_engine("sqlite:///data/gold.db")
 
 silver_df.to_sql(
