@@ -1,82 +1,158 @@
-# Detector de fraudes de cartão de crédito
+# Detector de Fraudes em Cartão de Crédito
 
-Este projeto utiliza **Docker** para facilitar a execução do ambiente completo sem dependências manuais.
+Plataforma de Engenharia de Dados para detecção de fraudes utilizando arquitetura Medallion e Machine Learning.
 
 ---
 
-## 🚀 Como iniciar o projeto
+## 📋 Arquitetura do Projeto
 
-Siga os passos abaixo para preparar e executar o ambiente:
+```
+┌─────────────┐    ┌─────────────┐
+│   MySQL     │    │  MongoDB    │
+│ (Docker)    │    │  (Atlas)    │
+└──────┬──────┘    └──────┬──────┘
+       │                  │
+       └────────┬─────────┘
+                ▼
+        ┌───────────────┐
+        │ CAMADA BRONZE │  → Arquivos .txt
+        └───────┬───────┘
+                ▼
+        ┌───────────────┐
+        │ CAMADA SILVER │  → DataFrame (pickle)
+        └───────┬───────┘
+                ▼
+        ┌───────────────┐
+        │ CAMADA GOLD   │  → SQLite
+        └───────┬───────┘
+                ▼
+        ┌───────────────┐
+        │ MACHINE LEARN │  → Modelo RandomForest
+        └───────────────┘
+```
 
-### 1. Acesse a pasta `docker`
+---
+
+## 🚀 Como executar o projeto
+
+### 1. Acesse a pasta docker e configure o ambiente
 
 ```sh
 cd docker
-```
-
----
-
-### 2. Crie o arquivo `.env`
-
-Dentro da pasta `docker`, existe um arquivo chamado `example.env`.  
-Utilize-o como base para criar seu arquivo `.env`:
-
-```sh
 cp example.env .env
 ```
 
-Edite o `.env` conforme necessário (usuários, senhas, portas, etc.)
+Edite o `.env` com suas credenciais (MySQL e MongoDB Atlas).
 
-> [!NOTE]
-> Para inserir mais váriaveis de ambiente, adicionar no docker-compose.yml
-> <br>
-> OBS: Apenas o .env da pasta docker surte alterações no código
-
----
-
-### 3. Inicie os containers
-
-Execute o comando abaixo para construir e iniciar os serviços:
+### 2. Inicie os containers
 
 ```sh
 docker compose up --build
 ```
 
-Após a primeira execução, você pode usar apenas:
+### 3. Execute o pipeline completo
 
 ```sh
-docker compose up
+python scripts/run_pipeline.py
 ```
 
-> [!NOTE]
-> Para inserir mais serviços, execute semelhante ao servio do python-app ou altere no DockerFile para adicionar novo comando
+### 4. (Opcional) Execute via Apache Airflow
+
+Copie a DAG para o Airflow:
+```sh
+cp dags/fraud_detection_dag.py ~/airflow/dags/
+```
+
+Acesse o Airflow em `http://localhost:8080` e ative a DAG `fraud_detection_pipeline`.
 
 ---
 
-## 🛠️ Verificando o Banco de Dados
+## 📁 Estrutura de Pastas
 
-Para confirmar se o MySQL foi criado e está rodando corretamente, execute:
-
-```sh
-docker exec -it mysql-container mysql -u root -p
 ```
-
-Digite a senha configurada no arquivo `.env`.
+├── dags/                      # DAGs do Apache Airflow
+│   └── fraud_detection_dag.py
+├── data/
+│   ├── bronze/                # Dados brutos em .txt
+│   ├── silver/                # DataFrames processados (.pkl)
+│   └── gold/                  # Banco SQLite
+├── docker/
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   └── example.env
+├── models/                    # Modelos de ML treinados
+├── scripts/
+│   ├── bronze_processing.py  # Extração para camada Bronze
+│   ├── silver_processing.py  # Transformação para camada Silver
+│   ├── gold_processing.py    # Carga para camada Gold
+│   ├── train_model.py        # Treinamento do modelo ML
+│   ├── run_pipeline.py       # Executa pipeline completo
+│   ├── import_csv.py         # Importa CSV para MySQL
+│   └── import_csv_mongo.py   # Importa JSON para MongoDB
+└── requirements.txt
+```
 
 ---
 
-## ✔️ Pronto!
+## 🔧 Tecnologias Utilizadas
 
-Seu ambiente está configurado e funcionando via Docker.  
-Caso precise parar os containers, execute:
-
-```sh
-docker compose down
-```
+| Componente | Tecnologia |
+|------------|------------|
+| VM | Ubuntu Server 25 |
+| Container | Docker |
+| BD Relacional | MySQL 8.0 |
+| BD NoSQL | MongoDB Atlas |
+| ETL | Python + Pandas |
+| Orquestração | Apache Airflow |
+| Data Lake | Arquitetura Medallion |
+| Machine Learning | scikit-learn (RandomForest) |
+| Camada Gold | SQLite |
 
 ---
 
-## Criação da VM Ubuntu, e a mesma rodando para o ambiente de desenvolvimento
+## 🏗️ Arquitetura Medallion
+
+### Camada Bronze
+- Dados brutos extraídos do MySQL e MongoDB
+- Formato: arquivos `.txt` (tab-separated)
+- Local: `data/bronze/`
+
+### Camada Silver  
+- Dados limpos e consolidados
+- Remoção de duplicatas e valores nulos
+- Formato: pandas DataFrame (pickle)
+- Local: `data/silver/`
+
+### Camada Gold
+- Dados prontos para análise
+- Formato: tabelas SQLite
+- Local: `data/gold/gold.db`
+
+---
+
+## 🤖 Machine Learning
+
+- **Algoritmo**: Random Forest Classifier
+- **Balanceamento**: SMOTE (Synthetic Minority Over-sampling)
+- **Métricas**: Acurácia, Precision, Recall, F1-Score
+- **Modelo salvo**: `models/fraud_model.pkl`
+
+---
+
+## 👥 Divisão do Grupo
+
+| Membro | Responsabilidade |
+|--------|------------------|
+| [Nome 1] | Infraestrutura (Docker, VM, Bancos) |
+| [Nome 2] | ETL e Pipeline de Dados |
+| [Nome 3] | Machine Learning |
+| [Nome 4] | Documentação e Apresentação |
+
+---
+
+## 📸 Screenshots
+
+### VM Ubuntu rodando
 
 ![alt text](images/vm.png)
 

@@ -1,7 +1,10 @@
+import os
 import sqlite3
 
 def run_gold(silver_df):
-    conn = sqlite3.connect("data/gold.db")
+    os.makedirs("data/gold", exist_ok=True)
+    
+    conn = sqlite3.connect("data/gold/gold.db")
     cursor = conn.cursor()
 
     cursor.execute("DROP TABLE IF EXISTS credit_card_gold")
@@ -30,4 +33,9 @@ def run_gold(silver_df):
     conn.commit()
     conn.close()
 
-    print("[GOLD] Dados persistidos em SQLite com sucesso")
+    print(f"[GOLD] Dados persistidos em data/gold/gold.db ({len(silver_df)} registros)")
+
+if __name__ == "__main__":
+    import pandas as pd
+    df = pd.read_pickle("data/silver/silver_data.pkl")
+    run_gold(df)

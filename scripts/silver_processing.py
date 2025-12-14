@@ -1,19 +1,25 @@
+import os
 import pandas as pd
-from db import get_mysql_engine
-from sqlalchemy import text
 
 def run_silver():
-    engine = get_mysql_engine()
-
-    with engine.connect() as conn:
-        result = conn.execute(text("SELECT * FROM credit_card"))
-        rows = result.fetchall()
-        columns = result.keys()
-
-    df = pd.DataFrame(rows, columns=columns)
-
+    os.makedirs("data/silver", exist_ok=True)
+    
+    df1 = pd.read_csv("data/bronze/bronze-credit-card1.txt", sep="\t")
+    df2 = pd.read_csv("data/bronze/bronze-credit-card2.txt", sep="\t")
+    
+    df = pd.concat([df1, df2], ignore_index=True)
+    
     df = df.drop_duplicates()
     df = df.dropna()
-
-    print(f"[SILVER] DataFrame criado com {len(df)} registros")
+    
+    if "id" in df.columns:
+        df = df.drop("id", axis=1)
+    
+    silver_path = "data/silver/silver_data.pkl"
+    df.to_pickle(silver_path)
+    
+    print(f"[SILVER] DataFrame salvo em {silver_path} ({len(df)} registros)")
     return df
+
+if __name__ == "__main__":
+    run_silver()
