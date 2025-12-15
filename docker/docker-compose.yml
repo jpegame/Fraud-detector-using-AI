@@ -22,28 +22,27 @@ services:
       timeout: 5s
       retries: 5
 
-  python-app:
+  mongo:
+    image: mongo:7
+    container_name: mongo-container
+    restart: always
+    networks:
+      - private-net
+
+  runner:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: python-app
-    env_file:
-      - .env
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_CSV_FILE: ${MYSQL_CSV_FILE}
-      DB_RETRY_COUNT: ${DB_RETRY_COUNT}
-      DB_RETRY_DELAY: ${DB_RETRY_DELAY}
-    volumes:
-      - ../scripts:/app/scripts
-      - ../data:/app/data
+    image: data-runner
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - private-net
+    volumes:
+    - ../data:/app/data:ro
+    env_file:
+    - .env
 
 networks:
   private-net:

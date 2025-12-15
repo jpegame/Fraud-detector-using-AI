@@ -9,4 +9,5 @@ RUN /app/.venv/bin/pip install --upgrade pip && \
 
 COPY scripts /app/scripts
 
-CMD ["/app/.venv/bin/python", "scripts/import_csv.py"]
+ENTRYPOINT ["/app/.venv/bin/python"]
+CMD ["scripts/import_csv.py"]

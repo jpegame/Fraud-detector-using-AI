@@ -25,7 +25,8 @@ for i in range(RETRY_COUNT):
             database=MYSQL_DATABASE
         )
         break
-    except:
+    except Exception as e:
+        print(f"Database connection failed (attempt {i + 1}/{RETRY_COUNT}): {e}")
         time.sleep(RETRY_DELAY)
 else:
     raise Exception("Database connection failed.")

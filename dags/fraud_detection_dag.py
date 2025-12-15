@@ -1,65 +1,88 @@
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
+import os
 import sys
-sys.path.insert(0, "/app/scripts")
 
-default_args = {
-    "owner": "airflow",
-    "depends_on_past": False,
-    "start_date": datetime(2025, 1, 1),
-    "retries": 1,
-    "retry_delay": timedelta(minutes=5),
-}
+# =========================================================
+# Ajuste de PATH para importar scripts fora da pasta dags
+# =========================================================
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SCRIPTS_DIR = os.path.join(BASE_DIR, "scripts")
 
-dag = DAG(
-    "fraud_detection_pipeline",
-    default_args=default_args,
+if SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, SCRIPTS_DIR)
+
+# =========================================================
+# Definição da DAG (Airflow 3.x)
+# =========================================================
+with DAG(
+    dag_id="fraud_detection_pipeline",
     description="Pipeline ETL para detecção de fraudes",
-    schedule_interval="@daily",
+    start_date=datetime(2025, 1, 1),
+    schedule="@daily",        # Airflow 3.x
     catchup=False,
-)
+    default_args={
+        "owner": "airflow",
+        "depends_on_past": False,
+        "retries": 1,
+        "retry_delay": timedelta(minutes=5),
+    },
+    tags=["fraud", "etl", "ml"],
+) as dag:
 
-def task_bronze():
-    from bronze_processing import run_bronze
-    run_bronze()
+    # =========================
+    # Tasks
+    # =========================
 
-def task_silver():
-    from silver_processing import run_silver
-    run_silver()
+    def task_bronze():
+        from scripts.bronze_processing import run_bronze
+        run_bronze()
 
-def task_gold():
-    import pandas as pd
-    from gold_processing import run_gold
-    df = pd.read_pickle("data/silver/silver_data.pkl")
-    run_gold(df)
+    def task_silver():
+        from scripts.silver_processing import run_silver
+        run_silver()
 
-def task_train_model():
-    from train_model import train_model
-    train_model()
+    def task_gold():
+        import pandas as pd
+        from scripts.gold_processing import run_gold
 
-bronze_task = PythonOperator(
-    task_id="bronze_layer",
-    python_callable=task_bronze,
-    dag=dag,
-)
+        silver_path = os.path.join(
+            BASE_DIR, "data", "silver", "silver_data.pkl"
+        )
 
-silver_task = PythonOperator(
-    task_id="silver_layer",
-    python_callable=task_silver,
-    dag=dag,
-)
+        df = pd.read_pickle(silver_path)
+        run_gold(df)
 
-gold_task = PythonOperator(
-    task_id="gold_layer",
-    python_callable=task_gold,
-    dag=dag,
-)
+    def task_train_model():
+        from scripts.train_model import train_model
+        train_model()
 
-ml_task = PythonOperator(
-    task_id="train_model",
-    python_callable=task_train_model,
-    dag=dag,
-)
+    # =========================
+    # Operators
+    # =========================
 
-bronze_task >> silver_task >> gold_task >> ml_task
+    bronze_task = PythonOperator(
+        task_id="bronze_layer",
+        python_callable=task_bronze,
+    )
+
+    silver_task = PythonOperator(
+        task_id="silver_layer",
+        python_callable=task_silver,
+    )
+
+    gold_task = PythonOperator(
+        task_id="gold_layer",
+        python_callable=task_gold,
+    )
+
+    ml_task = PythonOperator(
+        task_id="train_model",
+        python_callable=task_train_model,
+    )
+
+    # =========================
+    # Orquestração
+    # =========================
+    bronze_task >> silver_task >> gold_task >> ml_task
