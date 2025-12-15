@@ -42,8 +42,11 @@ python import_csv_mongo.py
 ## Passo 3: Executar o Pipeline Completo
 
 ```sh
-python run_pipeline.py
+airflow standalone
 ```
+
+Copie o usuario e senha do arquivo: simple_auth_manager_passwords.json.generated.
+Acesse a aba DAGS que aparecerá a tarefa que pode ser executada por lá
 
 Isso executa automaticamente:
 1. **Bronze** → Extrai dados do MySQL e MongoDB, salva em `.txt`
